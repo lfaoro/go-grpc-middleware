@@ -4,7 +4,9 @@ package grpc_logrus
 
 import (
 	"context"
+	"fmt"
 	"path"
+	"path/filepath"
 	"time"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware"
@@ -45,10 +47,11 @@ func UnaryServerInterceptor(entry *logrus.Entry, opts ...Option) grpc.UnaryServe
 			fields[logrus.ErrorKey] = err
 		}
 
+		method := filepath.Base(info.FullMethod)
 		levelLogf(
 			ctx_logrus.Extract(newCtx).WithFields(fields), // re-extract logger from newCtx, as it may have extra fields that changed in the holder.
 			level,
-			"finished unary call with code "+code.String())
+			fmt.Sprintf("%v finished unary call with code %v", method, code.String()))
 
 		return resp, err
 	}
